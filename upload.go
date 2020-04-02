@@ -5,7 +5,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/nfnt/resize"
 	"image"
+	_ "image/gif"
+	_ "image/jpeg"
 	"image/png"
+	_ "image/png"
 	"os"
 )
 
@@ -13,7 +16,6 @@ var (
 	JPEG       filetype = "image/jpeg"
 	PNG        filetype = "image/png"
 	GIF        filetype = "image/gif"
-	BMP        filetype = "image/bmp"
 	Fixed      narrow   = "fixed"      //固定宽高
 	Proportion narrow   = "proportion" //等比宽高缩小
 )
@@ -58,7 +60,7 @@ func (f *UploadFile) UploadImage(c *gin.Context) (string, error) {
 	image_type := header.Header["Content-Type"][0]
 	is_type := false
 	for _, v := range f.StandByType {
-		if v == image_type {
+		if string(v) == image_type {
 			is_type = true
 		}
 	}
@@ -71,6 +73,9 @@ func (f *UploadFile) UploadImage(c *gin.Context) (string, error) {
 	}
 	defer file_image.Close()
 	img, _, err := image.Decode(file_image)
+	if err != nil {
+		return "", err
+	}
 	b := img.Bounds()
 	width := b.Max.X
 	height := b.Max.Y
